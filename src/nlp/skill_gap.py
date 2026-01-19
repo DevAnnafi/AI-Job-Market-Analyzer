@@ -45,3 +45,40 @@
 # - coverage_score
 # - top 10 missing high-value skills
 # - formatted for dashboard use
+
+import pandas as pd
+from typing import List, Dict
+
+def compute_skill_gap(user_skills: List[str], market_df: pd.DataFrame) -> Dict:
+    # STEP 1 — Normalize user skills
+    normalized_user = set([s.lower().strip() for s in user_skills])
+
+    # STEP 2 — Normalize market skills
+    market_df['skill_name'] = market_df['skill_name'].str.lower().str.strip()
+    market_skills = set(market_df['skill_name'])
+
+    # STEP 3 — Compute overlap
+    matched = normalized_user.intersection(market_skills)
+
+    # STEP 4 — Coverage score
+    coverage = len(matched) / len(market_skills) if len(market_skills) > 0 else 0
+
+    # STEP 5 — Missing skills
+    missing = market_skills - normalized_user
+
+    # STEP 6 — Rank missing by demand
+    missing_df = market_df[market_df['skill_name'].isin(missing)] \
+        .sort_values(by='demand_count', ascending=False)
+
+    top_missing = missing_df[['skill_name', 'demand_count', 'market_weight']] \
+        .head(10) \
+        .to_dict(orient='records')
+
+    # STEP 7 — Structured output
+    return {
+        "coverage_score": round(coverage * 100, 2),
+        "matched_skills": sorted(list(matched)),
+        "missing_top10": top_missing
+    }
+
+
