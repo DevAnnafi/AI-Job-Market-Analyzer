@@ -42,13 +42,13 @@
 import pandas as pd
 
 def load_and_aggregate_skills(
-    job_skills_path="job_skills.csv",
-    skills_path="skills.csv",
+    job_skills_path="data/job_skills.csv",
+    skills_path="data/skills.csv",
     top_n=50
 ):
     # STEP 1 — Load datasets
-    job_skills = pd.read_csv("job_skills.csv")
-    skills = pd.read_csv("skills.csv")
+    job_skills = pd.read_csv(job_skills_path)
+    skills = pd.read_csv(skills_path)
 
     # STEP 2 — Merge job_skills with skills to decode skill names
     merged = job_skills.merge(skills, on="skill_id", how="left")
